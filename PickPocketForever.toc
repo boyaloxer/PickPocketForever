@@ -1,0 +1,16 @@
+## Interface: 16001
+## Title: Pick Pocket Forever
+## Notes: Destroys junkboxes as you loot them and sells what you pickpocket at vendors. Options on the minimap button, or /ppf.
+## Author: Vizer
+## Version: 1.2.0
+## IconTexture: Interface\Icons\INV_Misc_Bag_11
+## SavedVariables: PickPocketForeverDB
+## OptionalDeps: LibStub, CallbackHandler-1.0, LibDataBroker-1.1, LibDBIcon-1.0
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
+PickPocketForever.lua
+Options.lua
