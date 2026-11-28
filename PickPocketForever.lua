@@ -31,6 +31,8 @@ local KNOWN_NAMES = {
 	[16882] = "Battered Junkbox", [16883] = "Worn Junkbox",
 	[16884] = "Sturdy Junkbox", [16885] = "Heavy Junkbox",
 }
+local HEAVY_JUNKBOX = 16885
+
 -- Sold from the start, matched by name the first time each is seen in a bag.
 local SELL_BY_NAME = {
 	"Deep Fried Plantains", "Homemade Cherry Pie", "Alterac Swiss", "Fine Aged Cheddar",
@@ -71,6 +73,11 @@ for _, name in ipairs(SELL_BY_NAME) do SELL_NAMES[name:lower()] = true end
 --   destroy, sell, keep                      the three item lists
 --   total, sold, earned                      running counts
 local db
+-- Should this item be destroyed on sight? Junkboxes on the destroy list go,
+-- except Heavy Junkbox when they are being kept.
+local function ShouldDestroy(id)
+	return db.destroy[id] and not (db.keepHeavy and id == HEAVY_JUNKBOX)
+end
 local waiting = 0          -- destroy-list items in the bags at the last look
 local pending = {}         -- slot key -> time before which to leave that slot alone
 local attempts = {}        -- slot key -> item id we asked the game to destroy there
@@ -150,7 +157,7 @@ end
 local function Recount()
 	waiting = 0
 	EachSlot(function(_, _, id)
-		if db.destroy[id] then waiting = waiting + 1 end
+		if ShouldDestroy(id) then waiting = waiting + 1 end
 	end)
 end
 
@@ -183,7 +190,7 @@ local function OnInput()
 
 	local bag, slot, id
 	EachSlot(function(b, s, i, locked)
-		if not db.destroy[i] or locked then return false end
+		if not ShouldDestroy(i) or locked then return false end
 		local hold = pending[b * 1000 + s]
 		if hold and hold > now then return false end
 		bag, slot, id = b, s, i
@@ -440,7 +447,7 @@ end
 -- Switch one of destroying / selling / learn / chat on or off.
 function ns.Set(field, on)
 	db[field] = on and true or false
-	if field == "destroying" then
+	if field == "destroying" or field == "keepHeavy" then
 		Recount()
 	elseif field == "selling" and db.selling and merchantOpen then
 		StartSelling()
@@ -515,6 +522,7 @@ local function Status()
 	print("   /ppf destroying on | off   destroy junkboxes")
 	print("   /ppf selling on | off      sell at vendors")
 	print("   /ppf learn on | off        add what you pickpocket to the sell list")
+	print("   /ppf heavy on | off        keep Heavy Junkboxes instead of destroying them")
 	print("   /ppf chat on | off         reports in the chat window")
 	print("   /ppf list                  what is destroyed, sold and kept")
 	print("   /ppf sell [item]           sell this item at vendors")
@@ -577,6 +585,9 @@ SlashCmdList.PICKPOCKETFOREVER = function(msg)
 
 	elseif cmd == "learn" then
 		Toggle("learn", rest:lower(), "learning from Pick Pocket")
+
+	elseif cmd == "heavy" or cmd == "keepheavy" then
+		Toggle("keepHeavy", rest:lower(), "keeping Heavy Junkboxes")
 
 	elseif cmd == "chat" then
 		Toggle("chat", rest:lower(), "chat reports")
@@ -643,6 +654,7 @@ local function Setup()
 	if db.chat == nil then db.chat = not db.quiet end
 	db.quiet = nil
 	if db.learn == nil then db.learn = true end
+	if db.keepHeavy == nil then db.keepHeavy = true end
 	if type(db.minimap) ~= "table" then db.minimap = {} end
 	if type(db.destroy) ~= "table" then
 		-- 1.0.0 kept the destroy list under "items".

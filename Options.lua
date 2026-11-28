@@ -8,7 +8,7 @@ local ADDON, ns = ...
 local BUTTON_NAME = "PickPocketForever"
 local PANEL_NAME = "PickPocketForeverPanel"
 local PARCHMENT = "Interface\\ACHIEVEMENTFRAME\\UI-GuildAchievement-Parchment-Horizontal-Desaturated.png"
-local WIDTH, HEIGHT, FOOT = 340, 236, 40
+local WIDTH, HEIGHT, FOOT = 340, 262, 40
 local MARGIN = 16
 local ROW, HEADING_ROW, GROUP_GAP = 24, 20, 8
 
@@ -20,6 +20,10 @@ local LAYOUT = {
 		tip = "Junkboxes are destroyed as they land in your bags.\n\n"
 			.. "The game only allows this while you press a key or click, so each one goes on your "
 			.. "next key press.\n\nDestroyed items cannot be recovered." },
+	{ field = "keepHeavy", label = "Keep Heavy Junkboxes",
+		tip = "While this is on, Heavy Junkbox stays in your bags instead of being destroyed. "
+			.. "Sturdy, Worn and Battered junkboxes are still destroyed.\n\n"
+			.. "Turn this off to destroy Heavy Junkboxes like the rest." },
 	{ field = "selling", label = "Sell pickpocketed items automatically",
 		tip = "When you open a vendor, everything on the sell list is sold.\n\n"
 			.. "The list grows by itself: grey, white and green items you loot with Pick Pocket are "
